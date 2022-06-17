@@ -18,3 +18,8 @@ install any plugin or plugin manager.
 
 ## Example usage
 
+Block comments:
+![cmt C-style block comment example](./media/cmt_ex-1.gif)
+
+Debugging:
+![cmt debugging example](./media/cmt_ex-2.gif)
