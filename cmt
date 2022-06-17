@@ -44,7 +44,8 @@ main ()
 		;;
 
 		-d)	# 'debug'
-			# ... # debug
+			# e.g. 'cmt -d //'
+			# ... // debug
 			shift
 			line_close=" ${1:-#} debug"
 		;;
