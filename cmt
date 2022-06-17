@@ -79,12 +79,12 @@ main ()
 		;;
 
 		-w)	# 'wrap'
-			# e.g. 'cmt -w "foo"'
-			# foo ... foo
+			# e.g. 'cmt -w "foo" "bar"'
+			# foo ... bar
 			shift
 			save_indent=1
 			line_open="${1:-#} "
-			line_close=" ${1:-#}"
+			line_close=" ${2:-${1:-#}}"
 		;;
 
 		-x)	# 'check'
