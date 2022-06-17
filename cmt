@@ -17,14 +17,16 @@ main ()
 
 		-b)	# 'block'
 			# e.g. 'cmt -b "$(uni 1f603)"'
-			# 😃 
+			# ----
 			# 😃 ...
-			# 😃 
+			# 😃 ...
+			# 😃 ...
+			# ----
 			shift
 			save_indent=1
-			block_open="${1:-#}"
 			line_open="${1:-#} "
-			block_close="${1:-#}"
+			block_open="${2:-"$line_open"}"
+			block_close="${3:-"$block_open"}"
 		;;
 
 		-c)	# 'C-style' (single line)
