@@ -20,7 +20,6 @@ install any plugin or plugin manager.
 
 Should work fine in any POSIX compliant shell.
 
-
 ```shell
 # `foo` is a directory in your `$PATH`
 cd foo
@@ -58,3 +57,12 @@ Block comments:
 
 Debugging:
 ![cmt debugging example](./media/cmt_ex-2.gif)
+
+💖 Fun and formatting: 💖
+![cmt formatting example](./media/cmt_ex-3.gif)
+
+## Extensibility
+
+Simply define the variables: `block_open`, `block_close`, `line_open` and
+`line_close` to create new options or override the defaults.
+
