@@ -35,20 +35,20 @@ usage () {
 main ()
 {
 	case "$1" in
-		-a)	# 'append'
-			# e.g. 'cmt -a $(uni 1f480)'
+		-a)	# `append`
+			# e.g. `cmt -a $(uni 1f480)`
 			# ... 💀
 			shift
 			line_close=" ${1:-#}"
 		;;
 
-		-b)	# 'block'
-			# e.g. 'cmt -b "$(uni 1f603)"'
-			# ----
+		-b)	# `block`
+			# e.g. `cmt -b $(uni 1f603) '========'`
+			# ========
 			# 😃 ...
 			# 😃 ...
 			# 😃 ...
-			# ----
+			# ========
 			shift
 			save_indent=1
 			line_open="${1:-#} "
@@ -56,13 +56,13 @@ main ()
 			block_close="${3:-"$block_open"}"
 		;;
 
-		-c)	# 'C-style' (single line)
+		-c)	# `C-style` (single line)
 			# /* ... */
 			line_open='/* '
 			line_close=' */'
 		;;
 
-		-C)	# 'C-style' (block)
+		-C)	# `C-style` (block)
 			# /*
 			#  * ...
 			#  */
@@ -72,8 +72,8 @@ main ()
 			block_close=' */'
 		;;
 
-		-d)	# 'debug'
-			# e.g. 'cmt -d //'
+		-d)	# `debug`
+			# e.g. `cmt -d //`
 			# ... // debug
 			shift
 			line_close=" ${1:-#} debug"
@@ -83,16 +83,16 @@ main ()
 			usage
 		;;
 
-		-H)	# 'html'
+		-H)	# `html`
 			# <!-- ... -->
 			save_indent=1
 			line_open='<!-- '
 			line_close=' -->'
 		;;
 
-		-f)	# 'formatted'
+		-f)	# `formatted`
 			# Adds a trailing space.
-			# E.g. 'cmt -f \!'
+			# E.g. `cmt -f \!`
 			# ! ...
 			# ! ...
 			# ! ...
@@ -102,7 +102,7 @@ main ()
 		;;
 
 		-j)
-			# 'jsdoc'
+			# `jsdoc`
 			# /**
 			#  * ...
 			#  */
@@ -112,8 +112,8 @@ main ()
 			block_close=' */'
 		;;
 
-		-w)	# 'wrap'
-			# e.g. 'cmt -w "foo" "bar"'
+		-w)	# `wrap`
+			# e.g. `cmt -w "foo" "bar"`
 			# foo ... bar
 			shift
 			save_indent=1
@@ -121,20 +121,20 @@ main ()
 			line_close=" ${2:-${1:-#}}"
 		;;
 
-		-x)	# 'check'
+		-x)	# `check`
 			# ... ✔
 			save_indent=1
 			line_close=' ✔'
 		;;
 
-		-X)	# 'cross'
+		-X)	# `cross`
 			# ... ❌
 			save_indent=1
 			line_open=' ❌'
 		;;
 
 		*)
-			# e.g. 'cmt //'
+			# e.g. `cmt //`
 			# //...
 			line_open="${1:-#}"
 		;;
