@@ -27,8 +27,8 @@ usage () {
 	echo '                      * ...'
 	echo '                      */'\'
 	echo '         -w  wrap: `<string1> ... <string2>'\'
-	echo '         -x  check: `✔ ...'\'
-	echo '         -X  cross: `❌ ...'\'
+	echo '         -x  check: `... ✔'\'
+	echo '         -X  cross: `... ❌'\'
 	exit
 } >&2
 
