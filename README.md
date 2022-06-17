@@ -16,6 +16,22 @@ install any plugin or plugin manager.
 * Minimum hassle to install/configure
 * Compatible/portable
 
+## Install
+
+Should work fine in any POSIX compliant shell.
+
+First `cd` into a directory in your `$PATH` and run one of the following:
+
+```shell
+# Just get the executable
+curl -so ./cmt https://raw.githubusercontent.com/jaf7C7/cmt/master/cmt 
+
+# Or if you want the whole hog:
+git clone https://github.com/jaf7C7/cmt/tree/master
+```
+
+Don't forget to make the `cmt` file executable with `chmod +x cmt`
+
 ## Example usage
 
 Block comments:
