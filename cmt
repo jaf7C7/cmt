@@ -1,0 +1,170 @@
+#!/bin/sh
+#
+# `cmt`: Filter which toggles comments.
+#
+# Depends: none
+# Environment: none
+
+main ()
+{
+	case "$1" in
+		-a)	# 'append'
+			# e.g. 'cmt -a $(uni 1f480)'
+			# ... 💀
+			shift
+			line_close=" ${1:-#}"
+		;;
+
+		-b)	# 'block'
+			# e.g. 'cmt -b "$(uni 1f603)"'
+			# 😃 
+			# 😃 ...
+			# 😃 
+			shift
+			save_indent=1
+			block_open="${1:-#}"
+			line_open="${1:-#} "
+			block_close="${1:-#}"
+		;;
+
+		-c)	# 'C-style' (single line)
+			# /* ... */
+			line_open='/* '
+			line_close=' */'
+		;;
+
+		-C)	# 'C-style' (block)
+			# /*
+			#  * ...
+			#  */
+			save_indent=1
+			block_open='/*'
+			line_open=' * '
+			block_close=' */'
+		;;
+
+		-d)	# 'debug'
+			# ... # debug
+			shift
+			line_close=" ${1:-#} debug"
+		;;
+
+		-h)	# 'html'
+			# <!-- ... -->
+			save_indent=1
+			line_open='<!-- '
+			line_close=' -->'
+		;;
+
+		-f)	# 'formatted'
+			# Adds a trailing space.
+			# E.g. 'cmt -f \!'
+			# ! ...
+			# ! ...
+			# ! ...
+			save_indent=1
+			shift
+			line_open="${1:-#} "
+		;;
+
+		-j)
+			# 'jsdoc'
+			# /**
+			#  * ...
+			#  */
+			save_indent=1
+			block_open='/**'
+			line_open=' * '
+			block_close=' */'
+		;;
+
+		-w)	# 'wrap'
+			# e.g. 'cmt -w "foo"'
+			# foo ... foo
+			shift
+			save_indent=1
+			line_open="${1:-#} "
+			line_close=" ${1:-#}"
+		;;
+
+		-x)	# 'check'
+			# ... ✔
+			save_indent=1
+			line_close=' ✔'
+		;;
+
+		-X)	# 'cross'
+			# ... ❌
+			save_indent=1
+			line_open=' ❌'
+		;;
+
+		*)
+			# e.g. 'cmt //'
+			# //...
+			line_open="${1:-#}"
+		;;
+	esac
+
+	while IFS= read -r line; do
+		if [ ${i:=1} -eq 1 ]; then
+			if [ -z "$line" ]; then
+				printf '\n'
+				continue
+			fi
+
+			i=$((i + 1))
+
+			if [ -n "$save_indent" ]; then
+				indent="${line%%[![:space:]]*}"
+			fi
+
+			if [ "${line#"$indent"}" = "$block_open" ]; then
+				continue
+			fi
+
+			if [ -n "$block_open" ]; then
+				printf '%s\n' "${indent}${block_open}"
+			fi
+
+			if [ -n "$block_close" ]; then
+				trap 'printf "%s\n" "${indent}${block_close}"'\
+					EXIT
+			fi
+		fi
+
+		line="${line#"$indent"}"
+
+		case "$line" in
+			"")
+				# Where formatting is important, comment empty
+				# lines.
+				if [ -n "$save_indent" ]; then
+					line="$line_open"
+				else
+					printf '\n'
+					continue
+				fi
+			;;
+
+			"$block_close")
+				trap - EXIT
+				continue
+			;;
+
+			"$line_open"*"$line_close")
+				line="${line#"$line_open"}"
+				line="${line%"$line_close"}"
+			;;
+
+			*)
+				line="${line_open}${line}${line_close}"
+			;;
+		esac
+
+		printf '%s\n' "${indent}${line}"
+	done
+}
+
+main "$@"
+
