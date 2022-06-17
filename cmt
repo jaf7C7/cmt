@@ -5,6 +5,33 @@
 # Depends: none
 # Environment: none
 
+usage () {
+	echo 'usage: cmt [-cChjxX]'
+	echo '       cmt [-adf] [<string>]'
+	echo '       cmt -b [<string1>] [[<string2>] [[<string3>]]]'
+	echo '       cmt -w [<string1>] [[<string2>]]'
+	echo
+	echo 'options: -h  display this message'
+	echo '         -a  append: ` <string>'\'
+	echo '         -b  custom block: `<string2>'
+	echo '                            <string1> ...'
+	echo '                            <string3>'\'
+	echo '         -c  c-style: `/* ... */'\'
+	echo '         -C  c-style block: `/*'
+	echo '                              * ...'
+	echo '                              */'\'
+	echo '         -d  debug: `<string> debug'\'
+	echo '         -H  html: `<!-- ... -->'\'
+	echo '         -f  formatted (trailing space): `<string> '\'
+	echo '         -j  jsdoc: `/**'
+	echo '                      * ...'
+	echo '                      */'\'
+	echo '         -w  wrap: `<string1> ... <string2>'\'
+	echo '         -x  check: `✔ ...'\'
+	echo '         -X  cross: `❌ ...'\'
+	exit
+} >&2
+
 main ()
 {
 	case "$1" in
@@ -52,7 +79,11 @@ main ()
 			line_close=" ${1:-#} debug"
 		;;
 
-		-h)	# 'html'
+		-h)
+			usage
+		;;
+
+		-H)	# 'html'
 			# <!-- ... -->
 			save_indent=1
 			line_open='<!-- '
