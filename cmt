@@ -2,33 +2,39 @@
 #
 # `cmt`: Filter which toggles comments.
 #
-# Depends: none
-# Environment: none
+# Depends: `fmt` (optional)
+# Environment: PAGER
+
+: "${PAGER:=more}"
 
 usage () {
-	echo 'usage: cmt [-cChjxX]'
-	echo '       cmt [-adf] [<string>]'
-	echo '       cmt -b [<string1>] [[<string2>] [[<string3>]]]'
-	echo '       cmt -w [<string1>] [[<string2>]]'
-	echo
-	echo 'options: -h  display this message'
-	echo '         -a  append: ` <string>'\'
-	echo '         -b  custom block: `<string2>'
-	echo '                            <string1> ...'
-	echo '                            <string3>'\'
-	echo '         -c  c-style: `/* ... */'\'
-	echo '         -C  c-style block: `/*'
-	echo '                              * ...'
-	echo '                              */'\'
-	echo '         -d  debug: `<string> debug'\'
-	echo '         -H  html: `<!-- ... -->'\'
-	echo '         -f  formatted (trailing space): `<string> '\'
-	echo '         -j  jsdoc: `/**'
-	echo '                      * ...'
-	echo '                      */'\'
-	echo '         -w  wrap: `<string1> ... <string2>'\'
-	echo '         -x  check: `... ✔'\'
-	echo '         -X  cross: `... ❌'\'
+	printf '%s\n' \
+	'USAGE: cmt [-cChjxX]' \
+	'       cmt [-adfFr] [<string>]' \
+	'       cmt -b [<string1>] [<string2> [<string3>]]' \
+	'       cmt -w [<string1>] [<string2>]' \
+	'' \
+	'OPTIONS: -h  display this message' \
+	'         -a  append: `... <string>'\' \
+	'         -b  custom block: `<string2>' \
+	'                            <string1> ...' \
+	'                            <string3>'\' \
+	'         -c  c-style: `/* ... */'\' \
+	'         -C  c-style block: `/*' \
+	'                              * ...' \
+	'                              */'\' \
+	'         -d  debug: `... <string> debug'\' \
+	'         -H  html: `<!-- ... -->'\' \
+	'         -f  formatted (trailing space): `<string> ...'\' \
+	'         -F  like `-f'\'', but also pipe through `fmt(1)'\' \
+	'         -j  jsdoc: `/**' \
+	'                      * ...' \
+	'                      */'\' \
+	'         -r  returns: `... <string> → '\' \
+	'         -w  wrap: `<string1> ... <string2>'\' \
+	'         -x  check: `... ✔'\' \
+	'         -X  cross: `... ❌'\' \
+	| "$PAGER"
 	exit
 } >&2
 
@@ -91,14 +97,27 @@ main ()
 		;;
 
 		-f)	# `formatted`
-			# Adds a trailing space.
+			# Adds a trailing space, blank lines are also
+			# commented.
 			# e.g. `cmt -f \!`
 			# ! ...
 			# ! ...
+			# ! 
 			# ! ...
 			save_indent=1
 			shift
 			line_open="${1:-#} "
+		;;
+
+		-F)
+			# `fully formatted`
+			# Like `-f` but also pipe input through `fmt(1)`.
+			command -v fmt >/dev/null >&2 || {
+				printf 'cmt: `fmt(1)'\'' not found\n'
+				return 1
+			} >&2
+			shift
+			exec fmt | cmt -f "${1:-#}"
 		;;
 
 		-j)
@@ -110,6 +129,14 @@ main ()
 			block_open='/**'
 			line_open=' * '
 			block_close=' */'
+		;;
+
+		-r)
+			# `returns`
+			# e.g. `cmt -r //`
+			# ... // →
+			shift
+			line_close=" ${1:-#} → "
 		;;
 
 		-w)	# `wrap`
