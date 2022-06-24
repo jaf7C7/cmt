@@ -96,7 +96,7 @@ main ()
 			line_close=' -->'
 		;;
 
-		-f)	# `formatted`
+		-f)	# `format`
 			# Adds a trailing space, blank lines are also
 			# commented.
 			# e.g. `cmt -f \!`
@@ -110,7 +110,7 @@ main ()
 		;;
 
 		-F)
-			# `fully formatted`
+			# `external format`
 			# Like `-f` but also pipe input through `fmt(1)`.
 			command -v fmt >/dev/null >&2 || {
 				printf 'cmt: `fmt(1)'\'' not found\n'
@@ -137,6 +137,16 @@ main ()
 			# ... // →
 			shift
 			line_close=" ${1:-#} → "
+		;;
+
+		-R)
+			# `reformat`
+			# For re-formatting comments after editing: Removes
+			# current comment string with `cmt -f`, then pipes
+			# through `fmt(1)` for formatting, then replaces
+			# comment chars with another call to `cmt -f`.
+			shift
+			exec cmt -f "${1:-#}" | fmt | cmt -f "${1:-#}"
 		;;
 
 		-w)	# `wrap`
