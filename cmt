@@ -5,9 +5,12 @@
 # Depends: `fmt` (optional)
 # Environment: PAGER
 
+# !TODO: Use `getopts` to allow certain combinations.
+# !TODO: Fix `-F` option (messes up screen)
+
 : "${PAGER:=more}"
 
-usage () {
+usage() {
 	printf '%s\n' \
 	'USAGE: cmt [-cChjxX]' \
 	'       cmt [-adfFr] [<string>]' \
@@ -16,7 +19,8 @@ usage () {
 	'' \
 	'OPTIONS: -h  display this message' \
 	'         -a  append: `... <string>'\' \
-	'         -b  custom block: `<string2>' \
+	'         -b  blockquote: `> ...'\' \
+	'         -B  custom block: `<string2>' \
 	'                            <string1> ...' \
 	'                            <string3>'\' \
 	'         -c  c-style: `/* ... */'\' \
@@ -30,6 +34,13 @@ usage () {
 	'         -j  jsdoc: `/**' \
 	'                      * ...' \
 	'                      */'\' \
+	'         -m  markdown: `<...>\'\' \
+	'         -n  numbered: `1. ... ' \
+	'                        2. ... ' \
+	'                        3. ... '\' \
+	'         -N  nearly-numbered: `1. ... ' \
+	'                               1. ... ' \
+	'                               1. ... '\' \
 	'         -r  returns: `... <string> → '\' \
 	'         -w  wrap: `<string1> ... <string2>'\' \
 	'         -x  check: `... ✔'\' \
@@ -38,9 +49,8 @@ usage () {
 	exit
 } >&2
 
-main ()
-{
-	case "$1" in
+main() {
+	case $1 in
 		-a)	# `append`
 			# e.g. `cmt -a $(uni 1f480)`
 			# ... 💀
@@ -48,7 +58,13 @@ main ()
 			line_close=" ${1:-#}"
 		;;
 
-		-b)	# `block`
+		-b)
+			# `blockquote`
+			# > ...
+			line_open='> '
+		;;
+
+		-B)	# `block`
 			# e.g. `cmt -b $(uni 1f603) '========'`
 			# ========
 			# 😃 ...
@@ -117,7 +133,7 @@ main ()
 				return 1
 			} >&2
 			shift
-			exec fmt | cmt -f "${1:-#}"
+			exec fmt - | cmt -f "${1:-#}"
 		;;
 
 		-j)
@@ -129,6 +145,31 @@ main ()
 			block_open='/**'
 			line_open=' * '
 			block_close=' */'
+		;;
+
+		-m)
+			# `markdown`
+			# <...>
+			line_open='<'
+			line_close='>\'
+		;;
+
+		-n)
+			# `numbered`
+			# 1. ...
+			# 1. ...
+			# ...
+			numbered=1
+			line_open='1. '
+		;;
+
+		-N)
+			# `nearly-numbered`
+			# For markdown numbered lists.
+			# 1. ...
+			# 1. ...
+			# ...
+			line_open='1. '
 		;;
 
 		-r)
@@ -178,7 +219,7 @@ main ()
 	esac
 
 	while IFS= read -r line; do
-		if [ ${i:=1} -eq 1 ]; then
+		if [ $((i)) -eq 0 ]; then
 			if [ -z "$line" ]; then
 				printf '\n'
 				continue
@@ -186,7 +227,7 @@ main ()
 
 			i=$((i + 1))
 
-			if [ -n "$save_indent" ]; then
+			if [ $((save_indent)) -eq 1 ]; then
 				indent="${line%%[![:space:]]*}"
 			fi
 
@@ -206,11 +247,11 @@ main ()
 
 		line="${line#"$indent"}"
 
-		case "$line" in
-			"")
+		case $line in
+			'')
 				# Where formatting is important, comment empty
 				# lines.
-				if [ -n "$save_indent" ]; then
+				if [ $((save_indent)) -eq 1 ]; then
 					line="$line_open"
 				else
 					printf '\n'
@@ -234,6 +275,11 @@ main ()
 		esac
 
 		printf '%s\n' "${indent}${line}"
+
+		if [ $((numbered)) -eq 1 ]; then
+			i=$((i + 1))
+			line_open="$i. "
+		fi
 	done
 }
 
