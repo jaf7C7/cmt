@@ -1,0 +1,98 @@
+#!/bin/sh
+#
+# `cmt`: Filter which toggles comments.
+
+: "${CMT:=#}"
+
+parse_opts() {
+    lopen="$CMT "
+    while [ $# -gt 0 ]; do
+        case $1 in
+            -c)
+                shift
+                lopen='/* '
+                lclose=' */'
+                ;;
+            -C)
+                shift
+                bopen='/*'
+                lopen=' * '
+                bclose=' */'
+                ;;
+            -h)
+                shift
+                lopen='<!-- '
+                lclose=' -->'
+                ;;
+            -t)
+                shift
+                TODO=1
+                ;;
+            *)
+                [ -f "$1" ] && {
+                    exec 0<"$1"
+                    shift
+                    continue
+                }
+                lopen="$1 "
+                shift
+                ;;
+        esac
+    done
+}
+
+main() {
+    parse_opts "$@"
+    while IFS= read -r line; do
+        if [ -n "$TODO" ]; then
+            case $line in
+                '- [ ]'*)
+                    line="- [x]${line#'- [ ]'}"
+                    ;;
+                '- [x]'*)
+                    line="- [ ]${line#'- [x]'}"
+                    ;;
+                *)
+                    line="- [ ] ${line}"
+                    ;;
+            esac
+            printf '%s\n' "$line"
+            continue
+        fi
+        if [ -z "$first" ] && [ -z "$TODO" ]; then
+            [ -z "$line" ] && {
+                printf '\n'
+                continue
+            }
+            first="$line"
+            indent="${line%%[![:space:]]*}"
+            [ "$line" = "${indent}${bopen}" ] && continue
+            [ -n "$bopen" ] && printf '%s\n' "${indent}${bopen}"
+            [ -n "$bclose" ] && trap 'printf "%s\n" "${indent}${bclose}"' 0
+        fi
+        line="${line#"$indent"}"
+        case $line in
+            "")
+                line="${lopen}${line}${lclose}"
+                ;;
+            "$bclose")
+                trap - 0
+                continue
+                ;;
+            "${lopen%%[[:space:]]}")
+                printf '\n'
+                continue
+                ;;
+            "$lopen"*"$lclose")
+                line="${line#"$lopen"}"
+                line="${line%"$lclose"}"
+                ;;
+            *)
+                line="${lopen}${line}${lclose}"
+                ;;
+        esac
+        printf '%s\n' "${indent}${line}"
+    done
+}
+
+main "$@"
