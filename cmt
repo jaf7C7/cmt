@@ -19,6 +19,10 @@ parse_opts() {
                 lopen=' * '
                 bclose=' */'
                 ;;
+            -f)
+                shift
+                exec fmt -p "${1:-$CMT} " -w 88
+                ;;
             -h)
                 shift
                 lopen='<!-- '
