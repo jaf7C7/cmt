@@ -77,7 +77,7 @@ main() {
         line="${line#"$indent"}"
         case $line in
             "")
-                line="${lopen}${line}${lclose}"
+                line="${lopen%%[[:space:]]}${line}${lclose}"
                 ;;
             "$bclose")
                 trap - 0
