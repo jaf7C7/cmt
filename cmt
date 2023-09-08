@@ -20,8 +20,14 @@ parse_opts() {
             bclose=' */'
             ;;
         -f)
+            # Format existing comment
             shift
             exec fmt -p "${1:-$CMT} " -w 88
+            ;;
+        -F)
+            # Format and comment
+            shift
+            exec "$0" "$@" | fmt -p "${1:-$CMT} " -w 88
             ;;
         -h)
             shift
