@@ -1,7 +1,7 @@
 # cmt
 
 
-An extensible POSIX shellscript for commenting text, written for use with `vi(1)`.
+An extensible POSIX shellscript for commenting text, written for use with `vi(1)`. `cmt` will automatically comment or uncomment based on the first line it reads and the options passed.
 
 
 ## Examples
@@ -14,6 +14,7 @@ $ echo 'foo bar' | cmt
 $ printf '%s\n' foo bar | cmt
 # foo
 # bar
+
 ```
 
 C-style comments
@@ -26,6 +27,22 @@ $ printf '%s\n' foo bar | cmt -C
  * foo
  * bar
  */
+```
+
+Commented text will be uncommented:
+```
+$ echo foo | cmt | cmt
+foo
+
+$ cat c-style.txt
+/*
+ * foo
+ * bar
+ */
+
+$ cmt -C c-style.txt
+foo
+bar
 ```
 
 Indentation is preserved when commenting indented blocks:
