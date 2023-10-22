@@ -8,45 +8,45 @@ parse_opts() {
     lopen="$CMT "
     while [ $# -gt 0 ]; do
         case $1 in
-        -c)
-            shift
-            lopen='/* '
-            lclose=' */'
-            ;;
-        -C)
-            shift
-            bopen='/*'
-            lopen=' * '
-            bclose=' */'
-            ;;
-        -f)
-            # Format existing comment
-            shift
-            exec fmt -p "${1:-$CMT} " -w 80
-            ;;
-        -F)
-            # Format and comment
-            shift
-            exec "$0" "$@" | fmt -p "${1:-$CMT} " -w 80
-            ;;
-        -h)
-            shift
-            lopen='<!-- '
-            lclose=' -->'
-            ;;
-        -t)
-            shift
-            TODO=1
-            ;;
-        *)
-            if [ -f "$1" ]; then
-                exec 0<"$1"
+            -c)
                 shift
-                continue
-            fi
-            lopen="$1 "
-            shift
-            ;;
+                lopen='/* '
+                lclose=' */'
+                ;;
+            -C)
+                shift
+                bopen='/*'
+                lopen=' * '
+                bclose=' */'
+                ;;
+            -f)
+                # Format existing comment
+                shift
+                exec fmt -p "${1:-$CMT} " -w 80
+                ;;
+            -F)
+                # Format and comment
+                shift
+                exec "$0" "$@" | fmt -p "${1:-$CMT} " -w 80
+                ;;
+            -h)
+                shift
+                lopen='<!-- '
+                lclose=' -->'
+                ;;
+            -t)
+                shift
+                TODO=1
+                ;;
+            *)
+                if [ -f "$1" ]; then
+                    exec 0<"$1"
+                    shift
+                    continue
+                fi
+                lopen="$1 "
+                shift
+                ;;
         esac
     done
 }
@@ -56,15 +56,15 @@ main() {
     while IFS= read -r line; do
         if [ -n "$TODO" ]; then
             case $line in
-            '- [ ]'*)
-                line="- [x]${line#'- [ ]'}"
-                ;;
-            '- [x]'*)
-                line="- [ ]${line#'- [x]'}"
-                ;;
-            *)
-                line="- [ ] ${line}"
-                ;;
+                '- [ ]'*)
+                    line="- [x]${line#'- [ ]'}"
+                    ;;
+                '- [x]'*)
+                    line="- [ ]${line#'- [x]'}"
+                    ;;
+                *)
+                    line="- [ ] ${line}"
+                    ;;
             esac
             printf '%s\n' "$line"
             continue
@@ -88,24 +88,24 @@ main() {
         fi
         line="${line#"$indent"}"
         case $line in
-        '')
-            line="${lopen%%[[:space:]]}${line}${lclose}"
-            ;;
-        "$bclose")
-            trap - 0
-            continue
-            ;;
-        "${lopen%%[[:space:]]}")
-            printf '\n'
-            continue
-            ;;
-        "$lopen"*"$lclose")
-            line="${line#"$lopen"}"
-            line="${line%"$lclose"}"
-            ;;
-        *)
-            line="${lopen}${line}${lclose}"
-            ;;
+            '')
+                line="${lopen%%[[:space:]]}${line}${lclose}"
+                ;;
+            "$bclose")
+                trap - 0
+                continue
+                ;;
+            "${lopen%%[[:space:]]}")
+                printf '\n'
+                continue
+                ;;
+            "$lopen"*"$lclose")
+                line="${line#"$lopen"}"
+                line="${line%"$lclose"}"
+                ;;
+            *)
+                line="${lopen}${line}${lclose}"
+                ;;
         esac
         printf '%s\n' "${indent}${line}"
     done
