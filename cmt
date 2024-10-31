@@ -34,10 +34,6 @@ parse_opts() {
                 lopen='<!-- '
                 lclose=' -->'
                 ;;
-            -t)
-                shift
-                TODO=1
-                ;;
             *)
                 if [ -f "$1" ]; then
                     exec 0<"$1"
@@ -54,21 +50,6 @@ parse_opts() {
 main() {
     parse_opts "$@"
     while IFS= read -r line; do
-        if [ -n "$TODO" ]; then
-            case $line in
-                '- [ ]'*)
-                    line="- [x]${line#'- [ ]'}"
-                    ;;
-                '- [x]'*)
-                    line="- [ ]${line#'- [x]'}"
-                    ;;
-                *)
-                    line="- [ ] ${line}"
-                    ;;
-            esac
-            printf '%s\n' "$line"
-            continue
-        fi
         if [ -z "$first" ] && [ -z "$TODO" ]; then
             if [ -z "$line" ]; then
                 printf '\n'
